@@ -119,12 +119,16 @@ fun FaceDetectionScreen() {
                         .align(Alignment.BottomCenter)
                         .padding(bottom = 50.dp),
                     isFaceDetected = isFaceDetected,
-                    context = context,
-                    cameraController = cameraController,
-                    onCapturePhoto = { capturedPhoto = it },
-                    onCloseCamera = {
-                        if (isFaceDetected)
-                            isCameraShown = false
+                    onButtonClicked = {
+                        capturePhotoAndReplaceBackground(
+                            context,
+                            cameraController,
+                            isFaceDetected
+                        ) { capturedBitmap ->
+                            capturedPhoto = capturedBitmap.asImageBitmap()
+                            if (isFaceDetected)
+                                isCameraShown = false
+                        }
                     },
                 )
             }
@@ -175,10 +179,7 @@ private fun CameraView(
 private fun CapturePhotoButton(
     modifier: Modifier,
     isFaceDetected: Boolean,
-    context: Context,
-    cameraController: LifecycleCameraController,
-    onCapturePhoto: (ImageBitmap?) -> Unit,
-    onCloseCamera: () -> Unit,
+    onButtonClicked: ()->Unit
 ) {
 
     Image(
@@ -186,14 +187,7 @@ private fun CapturePhotoButton(
             .padding(top = 20.dp)
             .size(92.dp)
             .clickable {
-                capturePhotoAndReplaceBackground(
-                    context,
-                    cameraController,
-                    isFaceDetected
-                ) { capturedBitmap ->
-                    onCapturePhoto(capturedBitmap.asImageBitmap())
-                    onCloseCamera()
-                }
+                onButtonClicked()
 
             },
         painter = painterResource(
@@ -309,7 +303,7 @@ private fun OvalOverlay(
                 addOval(ovalRect)
             }
             clipPath(ovalPath, clipOp = ClipOp.Difference) {
-                drawRect(SolidColor(Color.Black.copy(alpha = 0.8f)))
+                drawRect(SolidColor(Color.Black.copy(alpha = 0.95f)))
             }
         }
 
